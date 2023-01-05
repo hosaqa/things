@@ -5,8 +5,18 @@ export interface IGoal {
   name: string;
   emoji?: string;
   description: string;
-  habits: IHabit['id'][];
-  attachHabit: (id: IHabit['id']) => void;
+  inspectionDate: number; // timestamp in seconds
+  attachedImages: Array<{
+    id: string,
+    url: string,
+    description: string;
+    attachedAt: number; // timestamp in seconds
+  }>; 
+  habits: Array<{
+    id: IHabit['id'];
+    attachedAt: number; // timestamp in seconds
+  }>;
+  attachHabit: ({ id, attachedAt }: { id: IHabit['id'], attachedAt: number }) => void;
   detachHabit: (id: IHabit['id']) => void;
   createdAt: number; // timestamp in seconds
   updatedAt: number; // timestamp in seconds
@@ -17,16 +27,46 @@ export class Goal implements IGoal {
   name: string;
   emoji?: string;
   description: string;
-  habits: IHabit['id'][];
+  inspectionDate: number;
+  attachedImages: Array<{
+    id: string,
+    url: string,
+    description: string;
+    attachedAt: number; // timestamp in seconds
+  }>; 
+  habits: Array<{
+    id: IHabit['id'];
+    attachedAt: number; // timestamp in seconds
+  }>;
   createdAt: number;
   updatedAt: number;
 
-  constructor({ id, name, emoji, description, habits, createdAt, updatedAt }: {
+  constructor({
+    id,
+    name,
+    emoji,
+    description,
+    inspectionDate,
+    attachedImages,
+    habits,
+    createdAt,
+    updatedAt,
+  }: {
     id: string,
     name: string,
     emoji?: string,
     description: string,
-    habits: IHabit['id'][],
+    inspectionDate: number;
+    attachedImages: Array<{
+      id: string,
+      url: string,
+      description: string;
+      attachedAt: number; // timestamp in seconds
+    }>;
+    habits: Array<{
+      id: IHabit['id'];
+      attachedAt: number; // timestamp in seconds
+    }>;
     createdAt?: number;
     updatedAt?: number;
   }) {
@@ -37,25 +77,34 @@ export class Goal implements IGoal {
     this.emoji = emoji;
     this.habits = habits;
     this.description = description;
+    this.inspectionDate = inspectionDate;
+    this.attachedImages = attachedImages;
     this.createdAt = createdAt || todayTimestamp;
     this.updatedAt = updatedAt || todayTimestamp;
   }
 
-  attachHabit = (id: IHabit['id']) => {
-    if (this.habits.includes(id)) {
+  get habitIds() {
+    return this.habits.map(({id}) => id);
+  }
+
+  attachHabit = ({id, attachedAt }: { id: IHabit['id'], attachedAt: number }) => {
+    if (this.habitIds.includes(id)) {
       throw new Error(`The habit with ID ${id} is already attached to the ${this.name} goal`);
     }
 
-    this.habits.push(id);
+    this.habits.push({
+      id,
+      attachedAt,
+    });
   }
 
   detachHabit = (id: IHabit['id']) => {
-    const index = this.habits.indexOf(id);
+    const index = this.habitIds.indexOf(id);
 
     if (index === -1) {
       throw new Error(`The habit with ID ${id} doesn't exist for the ${this.name} goal`);
     }
 
-    this.habits.splice(index, 0);
+    this.habitIds.splice(index, 0);
   }
 }

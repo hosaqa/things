@@ -1,10 +1,12 @@
 <script>
-  import AddHabitGrid from '../../../components/AddHabitGrid.svelte';
+  import AddHabitForm from '../../../components/AddHabitForm.svelte';
   import HabitsGrid from '../../../components/HabitsGrid.svelte';
+  import Images from './Images.svelte';
 
   import { page } from '$app/stores';
 
-  import { goalsStore } from '../../../stores/goalsList';
+  import { goalsStore } from '../../../stores/goals';
+
 
   let goal = goalsStore.getOne($page.params.slug);
 </script>
@@ -17,6 +19,10 @@
 </svelte:head>
 
 <div class="container">
+  <div class="to-home">
+    <a href="/">← Back</a>
+  </div>
+
   {#if $goal?.emoji}
 	  <span class="emoji">
 		  {$goal?.emoji}
@@ -25,12 +31,18 @@
   <h1 class="name">
     {$goal?.name}
   </h1>
-  <p>{$goal?.description}</p>
+  <p class="description">{$goal?.description}</p>
+  <p>Inspection date {new Date($goal?.inspectionDate * 1000).toLocaleDateString()}</p>
+  <Images images={$goal.attachedImages} />
   <HabitsGrid goalId={$goal?.id} class="grid" />
-  <AddHabitGrid goalId={$goal?.id} />
+  <AddHabitForm goalId={$goal?.id} />
 </div>
 
 <style>
+  .to-home {
+    margin-bottom: 50px;
+  }
+
   .emoji {
     font-size: 64px;
     display: block;
@@ -39,6 +51,14 @@
 
   .name {
     margin: 0 0 36px;
+  }
+
+  .description {
+    white-space: pre-line;
+  }
+
+  .images {
+    margin-bottom: 20px;
   }
 
   .container :global(.grid) {

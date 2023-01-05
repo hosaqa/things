@@ -1,9 +1,15 @@
 <script lang="ts">
+  import { default as dayjs } from 'dayjs';
+
 	import { habitsStore } from '../stores/habits';
+	import { goalsStore } from '../stores/goals';
+
 
   export let goalId: string | undefined = undefined;
 
-  let list = goalId ? habitsStore.getRelatedToGoalId(goalId) : habitsStore.list;
+  let goal = goalId ? goalsStore.getOne(goalId) : undefined;
+  $: list = goal ? habitsStore.filterByIds($goal!.habits.map(({id}) => id)) : habitsStore.list;
+
 
   function getWeek() {
     const curr = new Date();
@@ -13,10 +19,19 @@
       const date = new Date(firstDate);
       date.setDate(date.getDate() + index);
 
-      return date;
+      return dayjs(new Date(date)).startOf('date').toDate(); 
     });
   }
   const week = getWeek();
+
+  function checkDateIsPos(date: Date, habitDates: number[]) {
+    return habitDates.includes(Math.round(date.getTime() / 1000));
+  }
+
+  function checkboxHandleClick(id: string, date: Date) {
+    habitsStore.toggleDate(id, Math.round(date.getTime() / 1000));
+  }
+
 </script>
 
 <section class="{$$restProps.class || ''}">
@@ -33,12 +48,16 @@
       {#each $list as habit}
         <tr>
           <td>{habit.name}</td>
-          <td>1</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          {#each week as date}
+            <td>
+              <button
+                type="button"
+                on:click|preventDefault={() => checkboxHandleClick(habit.id, date)}
+              >
+                {checkDateIsPos(date, habit.dates) ? '+' : '-'}
+              </button>
+            </td>
+          {/each}
         </tr>
       {/each}
     </tbody>

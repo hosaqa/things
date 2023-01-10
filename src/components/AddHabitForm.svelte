@@ -9,8 +9,8 @@
   let emoji = '';
   let description = '';
 
-  function handleSubmit () {
-    const { id } = habitsStore.add({ name, emoji, description });
+  async function handleSubmit () {
+    const { id } = await habitsStore.add({ name, emoji, description });
 
     if (goalId) {
       goalsStore.attachHabit({ habitId: id, goalId });

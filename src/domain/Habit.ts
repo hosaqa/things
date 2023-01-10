@@ -73,4 +73,16 @@ export class Habit implements IHabit {
 
     this.dates.splice(index, 1);
   }
+
+  get plain () {
+    return {
+      id: this.id,
+      name: this.name,
+      emoji: this.emoji,
+      description: this.description,
+      dates: this.dates,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
+  }
 }

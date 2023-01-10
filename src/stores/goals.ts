@@ -4,44 +4,31 @@ import type { Readable } from 'svelte/store';
 import { GoalsList } from '../domain/GoalsList';
 import { Goal, type IGoal } from '../domain/Goal';
 
-import { persistentStorage, PERSISTENT_STORAGE_KEYS } from '../services/persistentStorage';
+import { apiService } from '../services/apiService';
 
 
 const createStore = () => {
-  const initialGoals = persistentStorage.get(PERSISTENT_STORAGE_KEYS.GOALS) as Array<{
-    id: string;
-    name: string;
-    emoji?: string;
-    description: string;
-    inspectionDate: number; // timestamp in seconds
-    attachedImages: Array<{
-      id: string,
-      url: string,
-      description: string;
-      attachedAt: number; // timestamp in seconds
-    }>; 
-    habits: Array<{
-      id: string;
-      attachedAt: number; // timestamp in seconds
-    }>;
-    createdAt: number; // timestamp in seconds
-    updatedAt: number; // timestamp in seconds
-  }>;
-  const domain = new GoalsList((initialGoals || []).map(goal => new Goal(goal)));
-  const observableList = writable(domain.list);
-  
+  let domain: GoalsList | null = null;
+
+  const observableList = writable<IGoal[]>([]);
+  apiService.goal.getList().then((list) => {
+    domain = new GoalsList(list);
+    observableList.set(domain!.list);
+  });
+
   return {
+    isFetching: false,
     list: observableList,
     getOne: (id: string) => {
       return derived(observableList, $observableList => $observableList.find(goal => goal.id === id)) as Readable<IGoal>;
     },
-    add: ({
+    add: async ({
       name,
       emoji,
       description,
       inspectionDate,
       attachedImages,
-    }: { 
+    }: {
       name: string,
       emoji?: string,
       description: string,
@@ -50,9 +37,9 @@ const createStore = () => {
         url: string,
         description: string;
       }>
-    }) => {
+    }): Promise<void> => {
       const goal = new Goal({
-        id: Math.random().toString(),
+        id: 'temp',
         name: name,
         emoji,
         description: description,
@@ -60,7 +47,6 @@ const createStore = () => {
         inspectionDate,
         attachedImages: attachedImages.map(({ url, description }) => {
           return {
-            id: Math.random().toString(),
             url,
             description,
             attachedAt: Math.round(Date.now() / 1000),
@@ -68,13 +54,13 @@ const createStore = () => {
         }),
       });
 
-      domain.add(goal);
-      observableList.set(domain.list);
-
-      persistentStorage.set(PERSISTENT_STORAGE_KEYS.GOALS, domain.list);
+      const model = await apiService.goal.create(goal.plain as IGoal);
+      
+      domain!.add(model);
+      observableList.set(domain!.list);
     },
-    attachHabit: ({ habitId, goalId }: { habitId: string, goalId: string }) => {
-      const goal = domain.list.find(({ id }) => id === goalId);
+    attachHabit: async ({ habitId, goalId }: { habitId: string, goalId: string }) => {
+      const goal = domain!.list.find(({ id }) => id === goalId);
 
       if (!goal) {
         throw new Error(`Attaching habit caused an error: goal with id ${goalId} doens't exist!`);
@@ -85,15 +71,14 @@ const createStore = () => {
         attachedAt: Math.round(Date.now() / 1000),
       });
 
-      observableList.set([...domain.list]);
-      persistentStorage.set(PERSISTENT_STORAGE_KEYS.GOALS, [...domain.list]);
+      await apiService.goal.patch(goal.id, {
+        habits: goal.habits,
+      });
+
+      observableList.set([...domain!.list]);
     },
     remove: (id: string) => {
-      domain.remove(id);
-
-      observableList.set(domain.list);
-
-      persistentStorage.set(PERSISTENT_STORAGE_KEYS.GOALS, domain.list);
+      throw new Error('must be implemented!');
     }
   }
 }

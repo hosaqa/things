@@ -1,27 +1,17 @@
 import { writable, derived, get } from 'svelte/store';
 
 import { Habit } from '../domain/Habit';
+import type { IHabit } from '../domain/Habit';
 
-import { persistentStorage, PERSISTENT_STORAGE_KEYS } from '../services/persistentStorage';
+import { apiService } from '../services/apiService';
 
 
 const createStore = () => {
-  const initial = persistentStorage
-    .get(PERSISTENT_STORAGE_KEYS.HABITS) as Array<{
-      id: string;
-      name: string;
-      emoji?: string;
-      description: string;
-      dates: number[];
-      createdAt: number; // timestamp in seconds
-      updatedAt: number; // timestamp in seconds
-    }> || [];
-   
-  const arr = initial
-    .map(({ id, name, emoji, description, dates, createdAt, updatedAt }) => {
-      return new Habit({ id, name, emoji, description, dates, createdAt, updatedAt });
-    });
-  const observableList = writable(arr);
+
+  const observableList = writable<IHabit[]>([]);
+  apiService.habit.getList().then((list) => {
+    observableList.set(list);
+  });
   
   return {
     list: observableList,
@@ -31,23 +21,24 @@ const createStore = () => {
     getOne: (id: string) => {
       return derived(observableList, $observableList => $observableList.find(habit => habit.id === id));
     },
-    add: ({ name, emoji, description }: { name: string, emoji?: string, description: string }) => {
+    add: async ({ name, emoji, description }: { name: string, emoji?: string, description: string }) => {
       const newHabit = new Habit({
-        id: Math.random().toString(),
+        id: 'temp',
         name,
         emoji,
         description,
         dates: [],
       });
 
-      const updated = [...get(observableList), newHabit];
+      const created = await apiService.habit.create(newHabit.plain as IHabit);
+
+      const updated = [...get(observableList), created];
       observableList.set(updated);
 
-      persistentStorage.set(PERSISTENT_STORAGE_KEYS.HABITS, updated);
-
-      return newHabit;
+      return created;
     },
     remove: (id: string) => {
+      throw new Error('should be implemented!');
 
       const updated = [...get(observableList)];
       const index = updated.findIndex(habitItem => habitItem.id === id);
@@ -55,10 +46,8 @@ const createStore = () => {
       updated.splice(index, 0);
 
       observableList.set(updated);
-
-      persistentStorage.set(PERSISTENT_STORAGE_KEYS.HABITS, updated);
     },
-    toggleDate: (habitId: string, date: number) => {
+    toggleDate: async (habitId: string, date: number) => {
       const list = [...get(observableList)];
       const habit = list.find(h => h.id === habitId);
     
@@ -67,9 +56,12 @@ const createStore = () => {
       } else {
         habit?.addDate(date);
       }
-   
+  
+      await apiService.habit.patch(habitId, {
+        dates: habit?.dates,
+      });
+
       observableList.set(list);
-      persistentStorage.set(PERSISTENT_STORAGE_KEYS.HABITS, list);
     },
   }
 }

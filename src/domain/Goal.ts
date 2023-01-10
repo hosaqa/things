@@ -7,7 +7,6 @@ export interface IGoal {
   description: string;
   inspectionDate: number; // timestamp in seconds
   attachedImages: Array<{
-    id: string,
     url: string,
     description: string;
     attachedAt: number; // timestamp in seconds
@@ -29,7 +28,6 @@ export class Goal implements IGoal {
   description: string;
   inspectionDate: number;
   attachedImages: Array<{
-    id: string,
     url: string,
     description: string;
     attachedAt: number; // timestamp in seconds
@@ -58,7 +56,6 @@ export class Goal implements IGoal {
     description: string,
     inspectionDate: number;
     attachedImages: Array<{
-      id: string,
       url: string,
       description: string;
       attachedAt: number; // timestamp in seconds
@@ -106,5 +103,19 @@ export class Goal implements IGoal {
     }
 
     this.habitIds.splice(index, 0);
+  }
+
+  get plain() {
+    return {
+      id: this.id,
+      name: this.name,
+      emoji: this.emoji,
+      description: this.description,
+      inspectionDate: this.inspectionDate,
+      attachedImages: this.attachedImages,
+      habits: this.habits,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
   }
 }

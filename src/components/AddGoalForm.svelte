@@ -2,7 +2,7 @@
   import { createForm } from 'felte';
   import { reporter, ValidationMessage } from '@felte/reporter-svelte';
   import { get } from 'svelte/store';
-	import { goalsStore } from '../stores/goals';
+	import { goalsStore } from '../domain/stores/goals';
 	import ErrorMessage from './Form/ErrorMessage.svelte';
 
 
@@ -68,7 +68,7 @@
         name: values.name,
         emoji: values.emoji ? values.emoji : undefined,
         description: values.description,
-        inspectionDate: Math.round(new Date(values.inspectionDate).getTime() / 1000),
+        inspectionDate: new Date(values.inspectionDate),
         attachedImages: values.images,
       });
 

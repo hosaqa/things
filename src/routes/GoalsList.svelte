@@ -1,5 +1,5 @@
 <script>
-	import { goalsStore } from '../stores/goals';
+	import { goalsStore } from '../domain/stores/goals';
 	import AddGoalForm from '../components/AddGoalForm.svelte';
 
   let list = goalsStore.list;

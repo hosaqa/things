@@ -1,8 +1,8 @@
 <script lang="ts">
   import { default as dayjs } from 'dayjs';
 
-	import { habitsStore } from '../stores/habits';
-	import { goalsStore } from '../stores/goals';
+	import { habitsStore } from '../domain/stores/habits';
+	import { goalsStore } from '../domain/stores/goals';
 
 
   export let goalId: string | undefined = undefined;
@@ -25,11 +25,11 @@
   const week = getWeek();
 
   function checkDateIsPos(date: Date, habitDates: number[]) {
-    return habitDates.includes(Math.round(date.getTime() / 1000));
+    return habitDates.includes(date.getTime());
   }
 
   function checkboxHandleClick(id: string, date: Date) {
-    habitsStore.toggleDate(id, Math.round(date.getTime() / 1000));
+    habitsStore.toggleDate(id, date);
   }
 
 </script>

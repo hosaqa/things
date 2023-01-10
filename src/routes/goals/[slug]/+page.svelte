@@ -5,7 +5,7 @@
 
   import { page } from '$app/stores';
 
-  import { goalsStore } from '../../../stores/goals';
+  import { goalsStore } from '../../../domain/stores/goals';
 
 
   let goal = goalsStore.getOne($page.params.slug);

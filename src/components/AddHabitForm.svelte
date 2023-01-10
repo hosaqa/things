@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { habitsStore } from '../stores/habits';
-	import { goalsStore } from '../stores/goals';
+	import { habitsStore } from '../domain/stores/habits';
+	import { goalsStore } from '../domain/stores/goals';
 
 
   export let goalId: string | undefined;

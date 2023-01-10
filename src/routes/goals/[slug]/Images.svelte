@@ -25,7 +25,7 @@
         {/if}
       </button>
       <div class="text">{image.description}</div>
-      <div class="text"><strong>Added:</strong> {new Date(image.attachedAt * 1000).toDateString()}</div>
+      <div class="text"><strong>Added:</strong> {new Date(image.attachedAt).toDateString()}</div>
     </li>
   {/each}
 </ul>

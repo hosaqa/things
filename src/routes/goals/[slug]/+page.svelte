@@ -32,7 +32,7 @@
     {$goal?.name}
   </h1>
   <p class="description">{$goal?.description}</p>
-  <p>Inspection date {new Date($goal?.inspectionDate * 1000).toLocaleDateString()}</p>
+  <p>Inspection date {new Date($goal?.inspectionDate).toLocaleDateString()}</p>
   <Images images={$goal.attachedImages} />
   <HabitsGrid goalId={$goal?.id} class="grid" />
   <AddHabitForm goalId={$goal?.id} />

@@ -83,7 +83,7 @@ function mapDtoToModel (dto: GoalDto): Goal {
     name: dto.name,
     emoji: dto.emoji || undefined,
     description: dto.description,
-    inspectionDate: dto.inspection_date,
+    inspectionDate: dto.inspection_date * 1000,
     attachedImages: dto.attached_images.map(({ url, description, attached_at }) => ({
       url,
       description,

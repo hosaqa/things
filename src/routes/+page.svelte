@@ -1,5 +1,7 @@
 <script>
 	import GoalsList from './GoalsList.svelte';
+	import LoginForm from '../components/LoginForm.svelte';
+
 </script>
 
 <svelte:head>
@@ -11,6 +13,7 @@
 	<h1>
 		My first svelte app
 	</h1>
+	<LoginForm />
 	<GoalsList />
 </section>
 

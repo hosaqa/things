@@ -2,9 +2,10 @@
 import { getAuth, GoogleAuthProvider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged } from 'firebase/auth';
 
 import type { AuthService } from './interface';
+import { app } from '../firebase';
 
 const provider = new GoogleAuthProvider();
-const auth = getAuth();
+const auth = getAuth(app);
 
 
 class FirebaseAuthService implements AuthService {
@@ -12,14 +13,7 @@ class FirebaseAuthService implements AuthService {
 
   constructor() {
     this._restoringPromise = new Promise(resolve => {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          // User is signed in, see docs for a list of available properties
-          resolve();
-        }
-        resolve();
-
-      });
+      onAuthStateChanged(auth, () => resolve());
     });
   }
 

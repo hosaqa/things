@@ -13,7 +13,6 @@
 	<h1>
 		My first svelte app
 	</h1>
-	<LoginForm />
 	<GoalsList />
 </section>
 

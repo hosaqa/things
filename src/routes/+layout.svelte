@@ -1,10 +1,24 @@
 <script>
+	import { userStore } from '../domain/stores/user';
+	import LoginForm from '../components/LoginForm.svelte';
+
 	import './styles.css';
+
+	let authIsRestoring = userStore.authIsRestoring;
+	let userIsLoggedIn = userStore.userIsLoggedIn;
 </script>
 
 <div class="app">
 	<main>
-		<slot />
+		{#if $authIsRestoring}
+			<div>Please, wait!</div>
+		{:else}
+			{#if $userIsLoggedIn}
+				<slot />
+			{:else}
+				<LoginForm />
+			{/if}
+		{/if}
 	</main>
 </div>
 

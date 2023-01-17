@@ -1,14 +1,9 @@
 <script lang="ts">
-	import { firebaseAuthService } from '../services/authService/firebaseAuthService';
-
-  firebaseAuthService.checkAuth().then((x) => {
-    console.log(x);
-    debugger
-  })
+	import { userStore } from '../domain/stores/user';
 </script>
 
 <section>
-  <button on:click={() => firebaseAuthService.signInWithGoogle()}>Log in with Google</button>
+  <button on:click={() => userStore.signInWithGoogle()}>Log in with Google</button>
 </section>
 
 <style>
